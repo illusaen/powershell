@@ -1,5 +1,3 @@
-[CmdletBinding()]
-
 # Get the ID and security principal of the current user account
 $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = new-object System.Security.Principal.WindowsPrincipal($myWindowsID)
@@ -9,7 +7,7 @@ $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
 
 # Check to see if we are currently running "as Administrator"
 if ( -not ($myWindowsPrincipal.IsInRole($adminRole))) {
-   # We are not running "as Administrator" - so relaunch as administrator
+  # We are not running "as Administrator" - so relaunch as administrator
    
   # Create a new process object that starts PowerShell
   $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
@@ -25,7 +23,8 @@ if ( -not ($myWindowsPrincipal.IsInRole($adminRole))) {
    
   # Exit from the current, unelevated, process
   exit
-} else {
+}
+else {
   clear-host
 }
 

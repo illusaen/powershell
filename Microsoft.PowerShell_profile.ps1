@@ -1,6 +1,7 @@
 oh-my-posh init pwsh --config 'C:\Users\wendy\OneDrive\Documents\Posh\theme.omp.json' | Invoke-Expression
 
 $PROJECT_DIRECTORY = "${HOME}\Documents\Projects"
+$Env:Path = "C:\Python27\;C:\Python27\Scripts\;\Users\wendy\AppData\Local\Programs\Python\Python310\Scripts;C:\Users\wendy\AppData\Local\Programs\Python\Python310\;${Env:Path}${HOME}\.bin;"
 
 Set-Alias -Name l -Value ls
 

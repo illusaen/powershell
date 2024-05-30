@@ -13,9 +13,11 @@ Function CreateDevContainer {
     [string]$Name,
 
     [ValidateSet('python', 'node', 'rust')]
-    [string]$Type = 'rust'
+    [string]$Type = 'rust',
+
+    [bool]$Code = $true
   )
-  
+
   Function WriteDevcontainerJson {
     $DevContainerJSONObject = @{
       "name"             = "${Type}-${Name}"
@@ -26,16 +28,12 @@ Function CreateDevContainer {
       "features"         = @{
         "ghcr.io/devcontainers/features/common-utils:2" = @{
           "configureZshAsDefaultShell" = $true
-          "username"                   = "devuser"
-          "userUid"                    = "1000"
-          "userGid"                    = "1000"
         }
         "ghcr.io/devcontainers/features/git:1"          = @{
           "version" = "latest"
           "ppa"     = "false"
         }
       }
-      "remoteUser"       = "devuser"
       "postStartCommand" = 'git config --global --add safe.directory ${containerWorkspaceFolder}'
     }
     
@@ -62,22 +60,15 @@ Function CreateDevContainer {
     $DockerfileObjectHeader = @(
       "FROM ${Image}:latest",
       '',
-      'RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \',
-      '    && apt-get purge -y imagemagick imagemagick-6-common',
+      "RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \",
+      "    && apt-get purge -y imagemagick imagemagick-6-common",
       ''
     )
   
     $Additional = switch ($Type) {
-      "node" {
-        @(
-          'ARG NODE_MODULES="tslint-to-eslint-config typescript"',
-          'RUN su node -c "umask 0002 && npm install -g ${NODE_MODULES}" \',
-          '    && npm cache clean --force > /dev/null 2>&1'
-        )
-      }
       "rust" {
         @(
-          'RUN apt-get -y install jq build-essential openssl',
+          "RUN apt-get -y install jq build-essential openssl",
           '',
           'RUN rustup component add rustfmt',
           'RUN rustup component add clippy'
@@ -93,7 +84,7 @@ Function CreateDevContainer {
   
     $DockerfileObjectHeader += $Additional + @(
       '',
-      'RUN apt-get clean -y && rm -rf /tmp/scripts'
+      "RUN apt-get clean -y && rm -rf /tmp/scripts"
     )
   
     $DockerfileObjectHeader -join "`r`n" | Out-File -FilePath (Join-Path -Path $DevcontainerDirectory -ChildPath "Dockerfile") -Encoding UTF8
@@ -111,5 +102,7 @@ Function CreateDevContainer {
   devcontainer up --workspace-folder $Directory
 
   Write-Host "Dev container successfully built at ${script:Directory}."
+
+  if ($Code) { code $Directory }
 }
 
